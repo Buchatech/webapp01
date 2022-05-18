@@ -58,7 +58,7 @@ jobs:
       #uses: azure/login@v1.4.3
       uses: azure/login@v1
       with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        creds: '${{ secrets.aks_cicdakstemp5122201_kubeConfig }}'
       
     - name: 'Run Azure CLI commands'
       run: |
