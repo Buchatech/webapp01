@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: "cicdakstemp5122201-5849"
-          image: "51822acr.azurecr.io/cicdakstemp5122201"
+          image: $IMAGE
           ports:
           - containerPort: 80
