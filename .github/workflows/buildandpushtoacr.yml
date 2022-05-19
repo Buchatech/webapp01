@@ -1,7 +1,7 @@
 on: [push]
 
 env:
-  IMAGE_NAME: webapp01
+  IMAGE_NAME: webapp01-
 
 jobs:
   build-and-deploy:
