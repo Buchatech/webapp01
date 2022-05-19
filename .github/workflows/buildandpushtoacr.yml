@@ -31,14 +31,14 @@ jobs:
     - name: Build and push image to ACR
       id: build-image
       run: |
-        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/cicdakstemp5122201:${{ github.run_number }} --label dockerfile-path=Dockerfile
-        docker push 51822acr.azurecr.io/cicdakstemp5122201:${{ github.run_number }}
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+        docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
     
     - name: Update Image Version
       id: imgupd
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/cicdakstemp5122201:${{ github.run_number }}"' -i manifests/deployment.yml
+        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
 
     # - uses: azure/k8s-set-context@v1
     #   id: login
