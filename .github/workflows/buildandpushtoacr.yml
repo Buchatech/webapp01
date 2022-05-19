@@ -34,11 +34,19 @@ jobs:
         docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
         docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
     
-    - name: Update Image Version
-      id: imgupd
-      uses: mikefarah/yq@master
+    # - name: Update Image Version
+    #   id: imgupd
+    #   uses: mikefarah/yq@master
+    #   with:
+    #     cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
+
+    # https://github.com/marketplace/actions/replace-action?version=v2
+    - name: Replace Action
+      uses: datamonsters/replace-action@v2
       with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
+        files: 'manifests/deployment.yml'
+        replacements: '51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}'
+
 
     # - uses: azure/k8s-set-context@v1
     #   id: login
