@@ -45,7 +45,7 @@ jobs:
       uses: datamonsters/replace-action@v2
       with:
         files: 'manifests/deployment.yml'
-        replacements: '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"'
+        replacements: '$IMAGE=51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}'
 
 
     # - uses: azure/k8s-set-context@v1
