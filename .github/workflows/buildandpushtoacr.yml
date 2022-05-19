@@ -38,7 +38,7 @@ jobs:
       id: imgupd
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }}"' -i manifests/deployment.yaml
+        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }}"' -i manifests/deployment.yml
 
     # - uses: azure/k8s-set-context@v1
     #   id: login
