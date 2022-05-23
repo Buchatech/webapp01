@@ -51,9 +51,9 @@ jobs:
     # https://github.community/t/github-actions-sed-usage/185904
     # https://www.geeksforgeeks.org/sed-command-in-linux-unix-with-examples/
     # https://stackoverflow.com/questions/66724889/github-actions-substitute-string-before-deploying        
-    - uses: actions/checkout@v2
-      name: Change deployment.yml
-      run:  sed -i -e 's/$IMAGE/51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}/g' manifests/deployment.yml
+    - name: Change deployment.yml file
+      run: |
+        sed -i -e 's/$IMAGE/51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}/g' manifests/deployment.yml
 
 
     # - uses: azure/k8s-set-context@v1
