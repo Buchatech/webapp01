@@ -53,7 +53,8 @@ jobs:
     # https://stackoverflow.com/questions/66724889/github-actions-substitute-string-before-deploying        
     - name: Change deployment.yml file
       run: |
-        sed -i 's/$IMAGE//51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}//g' manifests/deployment.yml
+        sed -i -e 's/$IMAGE/${{ env.IMAGE_NAME }}:${{ github.run_number }}/g' manifests/deployment.yml
+     #   sed -i -e 's/$IMAGE//51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}//g' manifests/deployment.yml
 
 
     # - uses: azure/k8s-set-context@v1
