@@ -44,7 +44,7 @@ jobs:
     - name: Replace Action
       uses: datamonsters/replace-action@v2
       with:
-        files: './manifests/deployment.yml'
+        files: 'deployment.yml'
         replacements: '$IMAGE=51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}'
 
 
