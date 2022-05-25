@@ -34,33 +34,17 @@ jobs:
         docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
         docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
-    # - name: Update Image Version
-    #   id: imgupd
-    #   uses: mikefarah/yq@master
-    #   with:
-    #     cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
+    - uses: actions/checkout@v2
 
-    # # https://github.com/marketplace/actions/replace-action?version=v2
-    - name: Replace Action
-      uses: datamonsters/replace-action@v2
+    - name: Update Image Version
+      id: imgupd
+      uses: mikefarah/yq@master
       with:
-    #     files: 'manifests/deployment.yml'
-    #     replacements: '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"'
-        manifests: |
-          manifests/deployment.yml
-          manifests/service.yml
-        images: |
-          51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
-
-    # # Reference: 
-    # https://github.community/t/github-actions-sed-usage/185904
-    # https://www.geeksforgeeks.org/sed-command-in-linux-unix-with-examples/
-    # https://stackoverflow.com/questions/66724889/github-actions-substitute-string-before-deploying        
-    # - name: Change deployment.yml file
-    #   run: |
-    #     sed -i -e 's/$IMAGE/${{ env.IMAGE_NAME }}:${{ github.run_number }}/g' manifests/deployment.yml
-     #   sed -i -e 's/$IMAGE//51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}//g' manifests/deployment.yml
-
+        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
+      
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Apply image version changes
 
     # - uses: azure/k8s-set-context@v1
     #   id: login
