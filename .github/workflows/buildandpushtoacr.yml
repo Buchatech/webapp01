@@ -42,9 +42,9 @@ jobs:
       with:
         cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i deployment.yml
       
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: Apply image version changes
+#     - uses: stefanzweifel/git-auto-commit-action@v4
+#       with:
+#         commit_message: Apply image version changes
 
     # - uses: azure/k8s-set-context@v1
     #   id: login
