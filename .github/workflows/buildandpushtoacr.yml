@@ -34,44 +34,48 @@ jobs:
         docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
         docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
-    - name: Update Image Version
-      id: imgupd
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i deployment.yml
+    # - uses: actions/checkout@v2
+
+    # - name: Update Image Version
+    #   id: imgupd
+    #   uses: mikefarah/yq@master
+    #   with:
+    #     cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
       
-#     - uses: stefanzweifel/git-auto-commit-action@v4
-#       with:
-#         commit_message: Apply image version changes
-
-    # - uses: azure/k8s-set-context@v1
-    #   id: login
+    # - uses: stefanzweifel/git-auto-commit-action@v4
     #   with:
-    #      kubeconfig: ${{ secrets.aks_cicdakstemp5122201_kubeConfig }}
+    #     commit_message: Apply image version changes
+
+    - uses: azure/k8s-set-context@v1
+      id: login
+      with:
+         kubeconfig: ${{ secrets.aks_cicdakstemp5122201_kubeConfig }}
     
-    # - name: Create namespace
-    #   run: |
-    #     namespacePresent=`kubectl get namespace | grep cicd-aks-temp-5-12-22-01aaa5 | wc -l`
-    #     if [ $namespacePresent -eq 0 ]
-    #     then
-    #         echo `kubectl create namespace cicd-aks-temp-5-12-22-01aaa5`
-    #     fi
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep cicd-aks-temp-5-12-22-01aaa5 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace cicd-aks-temp-5-12-22-01aaa5`
+        fi
 
-    # - uses: azure/k8s-create-secret@v1
-    #   with:
-    #     namespace: cicd-aks-temp-5-12-22-01aaa5
-    #     container-registry-url: 51822acr.azurecr.io
-    #     container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
-    #     container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
-    #     secret-name: cicdakstemp5dockerauth
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: cicd-aks-temp-5-12-22-01aaa5
+        container-registry-url: 51822acr.azurecr.io
+        container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
+        container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
+        secret-name: cicdakstemp5dockerauth
        
-    # - uses: azure/k8s-deploy@v1.2
-    #   with:
-    # #     namespace: cicd-aks-temp-5-12-22-01aaa5
-    #     manifests: |
-    #       manifests/deployment.yml
-    #       manifests/service.yml
-        # images: |
-        #   51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }}
-    #     imagepullsecrets: |
-    #       cicdakstemp5dockerauth   
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: cicd-aks-temp-5-12-22-01aaa5
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }} 
+        imagepullsecrets: |
+          cicdakstemp5dockerauth   
+
+  #                  51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
