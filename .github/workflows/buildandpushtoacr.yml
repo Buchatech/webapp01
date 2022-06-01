@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     
     - uses: azure/login@v1
       with:
@@ -33,8 +33,6 @@ jobs:
       run: |
         docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
         docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
-
-    - uses: actions/checkout@v2
 
     - name: Update Image Version
       id: imgupd
