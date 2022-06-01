@@ -74,8 +74,9 @@ jobs:
           manifests/deployment.yml
           manifests/service.yml
         images: |
-          51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }} 
+          51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
         imagepullsecrets: |
           cicdakstemp5dockerauth   
 
   #                  51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+  #                  51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }} 
