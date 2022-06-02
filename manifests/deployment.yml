@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: "cicdakstemp5122201-5849"
-          image: 51822acr.azurecr.io/webapp01:44
+          image: 51822acr.azurecr.io/webapp01:45
           ports:
             - containerPort: 80
