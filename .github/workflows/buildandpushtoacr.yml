@@ -35,8 +35,8 @@ jobs:
         docker push 51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
     - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GH_TOKEN }}
+      # with:
+      #   token: ${{ secrets.GH_TOKEN }}
 
     - name: Update Image Version
       id: imgupd
