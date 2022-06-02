@@ -5,7 +5,7 @@ env:
   # ${{ env.IMAGE_NAME }}
   ACR_NAME: acr01
   # ${{ env.ACR_NAME }}
-  RG_NAME: webpp01RG
+  RG_NAME: 51822acrbb45-rg #webpp01RG
   # ${{ env.RG_NAME }}
   REGION_LOCATION: "EAST US"
   # ${{ env.REGION_LOCATION }}
