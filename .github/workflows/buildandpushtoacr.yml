@@ -38,7 +38,7 @@ jobs:
 
     - name: Update Image Version
       id: imgupd
-      uses: mikefarah/yq@main
+      uses: mikefarah/yq@master
       with:
         cmd: yq eval '.spec.template.spec.containers[0].image = "51822acr.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/deployment.yml
       
