@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: "cicdakstemp5122201-5849"
 spec:
-  replicas: 2
+  replicas: 10
   selector:
     matchLabels:
       app: "cicdakstemp5122201-5849"
