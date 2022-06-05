@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "cicdakstemp5122201-5849"
+  name: "webapp01"
 spec:
-  replicas: 10
+  replicas: 2
   selector:
     matchLabels:
-      app: "cicdakstemp5122201-5849"
+      app: "webapp01"
   template:
     metadata:
       labels:
-        app: "cicdakstemp5122201-5849"
+        app: "webapp01"
     spec:
       containers:
-        - name: "cicdakstemp5122201-5849"
+        - name: "webapp01"
           image: acr6222.azurecr.io/webapp01:9
           ports:
             - containerPort: 80
