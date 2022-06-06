@@ -91,7 +91,7 @@ jobs:
       id: imgpullsecret
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec[0].imagePullSecrets = "${{ env.ACR_NAME }}-secret"' -i manifests/deployment.yml
+        cmd: yq eval '.imagePullSecrets[0].name = "${{ env.ACR_NAME }}-secret"' -i manifests/deployment.yml
 
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
