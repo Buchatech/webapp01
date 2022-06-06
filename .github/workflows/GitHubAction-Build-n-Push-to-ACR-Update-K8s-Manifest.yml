@@ -54,6 +54,7 @@ jobs:
 
   Create-ACR-Secret-in-K8s-:
     name: Create a K8s secret for ACR in the AKS cluster
+    needs: Build-and-Push
     runs-on: ubuntu-latest
     steps:
     
