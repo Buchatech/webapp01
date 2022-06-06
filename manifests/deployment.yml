@@ -15,7 +15,7 @@ spec:
       containers:
         - name: "webapp01"
           image: $IMAGE
-            imagePullSecrets:
-            - name: $CRSECRET
+          imagePullSecrets:
+          - name: $CRSECRET
           ports:
             - containerPort: 80
