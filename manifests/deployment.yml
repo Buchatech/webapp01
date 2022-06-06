@@ -14,11 +14,10 @@ spec:
     spec:
       containers:
         - name: "webapp01"
-          image: acr6222.azurecr.io/webapp01:24
+          image: acr6222.azurecr.io/webapp01:25
           ports:
             - containerPort: 80
           imagePullSecrets: acr6222-secret
-      imagePullSecrets:
-        - name: $CRSECRET
+      imagePullSecrets: acr6222-secret
       pod:
         - imagePullSecrets: acr6222-secret
