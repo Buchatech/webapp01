@@ -12,7 +12,7 @@ on: [push]
 env:
   IMAGE_NAME: webapp01
   # ${{ env.IMAGE_NAME }}
-  ACR_NAME: acr01
+  ACR_NAME: acr6222
   # ${{ env.ACR_NAME }}
   RG_NAME: 51822acrbb45-rg
   # ${{ env.RG_NAME }}
