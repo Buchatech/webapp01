@@ -6,6 +6,7 @@ name: GitHubActions-Build-n-Push-Container-to-ACR-Update-K8s-Manifest-Deploy-Fro
 # GitHub Actions logs into your AKS cluster and creates a secret for connecting to ACR used by the image deployment
 # GitHub Actions Updates a Kubernetes Manifest Deployment file.
 # GitOps Operator Argo CD does a pull and deploys the app to the AKS cluster.
+# 
 
 on: [push]
 
