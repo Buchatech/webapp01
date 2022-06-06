@@ -1,12 +1,22 @@
+name: GitHubActions-Build-n-Push-Container-to-ACR-Update-K8s-Manifest-Deploy-From-ArgoCD
+
+# This workflow uses GitHub Actions and GitOps to build and deploy a simple web app to AKS.
+# GitHub Actions creates a new Azure Container Registry if it does not exist 
+# GitHub Actions Builds and pushes container to Azure Container Registry
+# GitHub Actions logs into your AKS cluster and creates a secret for connecting to ACR used by the image deployment
+# GitHub Actions Updates a Kubernetes Manifest Deployment file.
+# GitOps Operator Argo CD does a pull and deploys the app to the AKS cluster.
+
 on: [push]
 
 env:
   IMAGE_NAME: webapp01
   # ${{ env.IMAGE_NAME }}
-  ACR_NAME: acr6222
+  ACR_NAME: acr01
   # ${{ env.ACR_NAME }}
   RG_NAME: 51822acrbb45-rg
   # ${{ env.RG_NAME }}
+  # NOTE: Has to be an existing resource group.
   REGION_LOCATION: "EAST US"
   # ${{ env.REGION_LOCATION }}
 
@@ -42,6 +52,24 @@ jobs:
         docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
         docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
+  Create-ACR-Secret-in-K8s-:
+    name: Create a K8s secret for ACR in the AKS cluster
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: azure/k8s-set-context@v1
+      id: k8slogin
+      with:
+         kubeconfig: ${{ secrets.aks_cicdakstemp5122201_kubeConfig }}
+        # kubeconfig: ${{ secrets.AKS_CREDENTIALS_kubeConfig }}
+         
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: default
+        container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
+        container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
+        container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
+        secret-name: ${{ env.ACR_NAME }}-secret
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
