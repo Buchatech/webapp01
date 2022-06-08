@@ -66,7 +66,7 @@ jobs:
          
     - uses: azure/k8s-create-secret@v1
       with:
-        namespace: default
+        namespace: webbapp01-ns
         container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
         container-registry-username: ${{ env.ACR_NAME }}
         container-registry-password: S+H2sBSmDyRKDJ3zm7PQSgYsby7sTj61
