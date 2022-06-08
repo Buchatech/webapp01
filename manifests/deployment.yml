@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
         - name: "webapp01"
-          image: acr6222.azurecr.io/webapp01:38
+          image: $IMAGE
           imagePullPolicy: Always
           ports:
             - containerPort: 80
       imagePullSecrets:
-        - name: acr6222-secret
+        - name: $CRSECRET
