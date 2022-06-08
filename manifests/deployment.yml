@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: "webapp01"
-          image: acr6222.azurecr.io/webapp01:41
+          image: acr6222.azurecr.io/webapp01:42
           imagePullPolicy: Always
           ports:
             - containerPort: 80
