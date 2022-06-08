@@ -14,6 +14,8 @@ env:
   # ${{ env.IMAGE_NAME }}
   ACR_NAME: acr6222
   # ${{ env.ACR_NAME }}
+  NS_NAME: webapp01-ns
+  # ${{ env.NS_NAME }}
   RG_NAME: 51822acrbb45-rg
   # ${{ env.RG_NAME }}
   # NOTE: Has to be an existing resource group.
@@ -63,13 +65,21 @@ jobs:
       with:
          kubeconfig: ${{ secrets.aks_cicdakstemp5122201_kubeConfig }}
         # kubeconfig: ${{ secrets.AKS_CREDENTIALS_kubeConfig }}
+
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep ${{ env.NS_NAME }} | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace ${{ env.NS_NAME }}`
+        fi
          
     - uses: azure/k8s-create-secret@v1
       with:
-        namespace: webbapp01-ns
+        namespace: ${{ env.NS_NAME }}
         container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
         container-registry-username: ${{ env.ACR_NAME }}
-        container-registry-password: S+H2sBSmDyRKDJ3zm7PQSgYsby7sTj61
+        container-registry-password: ${{ secrets.acr_acr6222_password }} #S+H2sBSmDyRKDJ3zm7PQSgYsby7sTj61 
         #container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
         secret-name: ${{ env.ACR_NAME }}-secret
 
