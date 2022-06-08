@@ -79,7 +79,7 @@ jobs:
         namespace: ${{ env.NS_NAME }}
         container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
         container-registry-username: ${{ env.ACR_NAME }}
-        container-registry-password: ${{ secrets.acr_acr6222_password }} #S+H2sBSmDyRKDJ3zm7PQSgYsby7sTj61  
+        container-registry-password: ${{ secrets.acr_acr6222_password }}  
         #container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
         secret-name: ${{ env.ACR_NAME }}-secret
 
