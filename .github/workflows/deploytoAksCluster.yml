@@ -1,10 +1,46 @@
+name: GitHubActions-Build-n-Push-Container-to-ACR-Update-K8s-Manifest-Deploy-From-ArgoCD
+
+# This workflow uses GitHub Actions and GitOps to build and deploy the Azure Voting App to AKS.
+# GitHub Actions creates a new Azure Container Registry if it does not exist. 
+# GitHub Actions Builds and pushes container to Azure Container Registry.
+# GitHub Actions logs into your AKS cluster and creates a secret for connecting to ACR used by the image deployment.
+# GitHub Actions Updates a Kubernetes Manifest Deployment file.
+# GitOps Operator Argo CD does a pull and deploys the app to the AKS cluster.
+
 on: [push]
+
+env:
+  IMAGE_NAME: azvoteapp
+  description: Name of your container image
+  # In the code # ${{ env.IMAGE_NAME }}
+  ACR_NAME: acr6222
+  # Name of the Azure Container Registry to be used
+  # In the code # ${{ env.ACR_NAME }}
+  AKS_NAME: CICD-AKS-Temp-5-12-22-01
+  # Name of the AKS cluster
+  # ${{ env.AKS_NAME }}
+  NS_NAME: azvoteapp01-ns
+  # Name of the Kubernetes nameservice for the app
+  # ${{ env.NS_NAME }}
+  AKSRG_NAME: CICD-AKS-Temp-5-12-22-01-RG
+  # Resource Group of the AKS cluster
+  # In the code # ${{ env.AKSRG_NAME }}
+  # NOTE: Has to be an existing resource group.
+  ACRRG_NAME: 51822acrbb45-rg
+  # Resource Group of the Azure Container Registry
+  # In the code # ${{ env.ACRRG_NAME }}
+  # NOTE: Has to be an existing resource group.
+  REGION_LOCATION: "EAST US"
+ # Region to be used
+ # In the code # ${{ env.REGION_LOCATION }}
+
 jobs:
-  build-and-deploy:
+  Build-and-Push:
+    name: Build and push Docker image to ACR
     runs-on: ubuntu-latest
     steps:
     
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     
     - uses: azure/login@v1
       with:
@@ -13,51 +49,88 @@ jobs:
     - name: Create ACR
       id: create-acr
       run: |
-        az acr create -n 51822acr -g 51822acrbb45-rg --location "East US" --sku Standard --admin-enabled
-        echo "::set-output name=acr_username::`az acr credential show -n 51822acr --query username | xargs`"
-        echo "::set-output name=acr_password::`az acr credential show -n 51822acr --query passwords[0].value | xargs`"
-        echo "::add-mask::`az acr credential show -n 51822acr --query passwords[0].value | xargs`"
+        az acr create -n ${{ env.ACR_NAME }} -g ${{ env.ACRRG_NAME }} --location "${{ env.REGION_LOCATION }}" --sku Standard --admin-enabled
+        echo "::set-output name=acr_username::`az acr credential show -n ${{ env.ACR_NAME }} --query username | xargs`"
+        echo "::set-output name=acr_password::`az acr credential show -n ${{ env.ACR_NAME }} --query passwords[0].value | xargs`"
+        echo "::add-mask::`az acr credential show -n ${{ env.ACR_NAME }} --query passwords[0].value | xargs`"
 
     - uses: azure/docker-login@v1
       with:
-        login-server: 51822acr.azurecr.io
-        username: ${{ steps.create-acr.outputs.acr_username }}
+        login-server: ${{ env.ACR_NAME }}.azurecr.io
+        username: ${{ env.ACR_NAME }}
         password: ${{ steps.create-acr.outputs.acr_password }}
 
     - name: Build and push image to ACR
       id: build-image
       run: |
-        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t 51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }} --label dockerfile-path=Dockerfile
-        docker push 51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }}
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+        docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+
+  Create-ACR-Secret-in-K8s-:
+    name: Create a K8s secret for ACR in the AKS cluster
+    needs: Build-and-Push
+    runs-on: ubuntu-latest
+    steps:
     
-    - uses: azure/k8s-set-context@v1
-      id: login
+    - uses: azure/login@v1
       with:
-         kubeconfig: ${{ secrets.aks_cicdakstemp5122201_kubeConfig }}
-    
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Retrieves the credentials for pulling images from your Azure Container Registry
+    - name: Get ACR credentials
+      run: |
+        az acr update -n ${{ env.ACR_NAME }} -g ${{ env.ACRRG_NAME }} --admin-enabled true
+        ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACR_NAME }} --query username -o tsv)
+        ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACR_NAME }} --query passwords[0].value -o tsv)
+        echo "::add-mask::${{ env.ACR_NAME }}"
+        echo "::set-output name=username::${{ env.ACR_NAME }}"
+        echo "::add-mask::${ACR_PASSWORD}"
+        echo "::set-output name=password::${ACR_PASSWORD}"
+      id: get-acr-creds
+
+    # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+    - name: Get K8s context
+      uses: azure/aks-set-context@v2.0
+      with:
+        resource-group: ${{ env.AKSRG_NAME }}
+        cluster-name: ${{ env.AKS_NAME }}
+
     - name: Create namespace
       run: |
-        namespacePresent=`kubectl get namespace | grep cicd-aks-temp-5-12-22-01aaa5 | wc -l`
+        namespacePresent=`kubectl get namespace | grep ${{ env.NS_NAME }} | wc -l`
         if [ $namespacePresent -eq 0 ]
         then
-            echo `kubectl create namespace cicd-aks-temp-5-12-22-01aaa5`
+            echo `kubectl create namespace ${{ env.NS_NAME }}`
         fi
-
+         
     - uses: azure/k8s-create-secret@v1
       with:
-        namespace: cicd-aks-temp-5-12-22-01aaa5
-        container-registry-url: 51822acr.azurecr.io
-        container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
-        container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
-        secret-name: cicdakstemp5dockerauth
-       
-    - uses: azure/k8s-deploy@v1.2
+        namespace: ${{ env.NS_NAME }}
+        container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
+        container-registry-username: ${{ env.ACR_NAME }} 
+        container-registry-password: ${ACR_PASSWORD}
+        secret-name: ${{ env.ACR_NAME }}-secret
+
+  Update-K8s-Manifests:
+    name: Update K8s Deployment Manifest with Image Version
+    needs: Build-and-Push
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Update Image Version
+      id: imgupd
+      uses: mikefarah/yq@master
       with:
-        namespace: cicd-aks-temp-5-12-22-01aaa5
-        manifests: |
-          manifests/deployment.yml
-          manifests/service.yml
-        images: |
-          51822acr.azurecr.io/cicdakstemp5122201:${{ github.sha }}
-        imagepullsecrets: |
-          cicdakstemp5dockerauth   
+        cmd: yq eval '.metadata.name.azure-vote-front.spec.template.spec.containers[0].image = "${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i manifests/azure-vote-all-in-one-redis.yaml
+
+    - name: Update Image Pull Secret Name
+      id: imgpullsecret
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq eval '.metadata.name.azure-vote-front.spec.template.spec.imagePullSecrets[0].name = "${{ env.ACR_NAME }}-secret"' -i manifests/azure-vote-all-in-one-redis.yaml
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Update image version in K8s Deployment manifests file
